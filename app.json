@@ -1,0 +1,22 @@
+{
+  "name": "Calculator Code Challenge ",
+  "description": "Code challenge project for web calculator",
+  "website": "https://github.com/edenprairie/Calculator-Challenge",
+  "repository": "https://github.com/edenprairie/Calculator-Challenge",
+  "logo": "https://node-js-sample.herokuapp.com/node.svg",
+  "success_url": "/",
+  "keywords": [
+    "node",
+    "express",
+    "socket.io",
+    "realtime",
+    "websocket"
+  ],
+  "scripts": {
+  },
+  "addons": [
+  ],
+  "env": {
+    "BUILDPACK_URL": "https://github.com/heroku/heroku-buildpack-nodejs"
+  }
+}
