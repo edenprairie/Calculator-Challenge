@@ -1,39 +1,136 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Calculator Challenge</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-      #messages { margin-bottom: 40px }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Calculate</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-      $(function () {
-        var socket = io();
-        $('form').submit(function(){
-          socket.emit('calculation result', $('#m').val());
-          $('#m').val('');
-          return false;
-        });
-        socket.on('calculation result', function(msg){
-          $('#messages').append($('<li>').text(msg));
-          window.scrollTo(0, document.body.scrollHeight);
-        });
+
+<head>
+  <title>Calculator Challenge</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #messages {
+      margin-bottom: 40px
+    }
+  </style>
+</head>
+
+<body>
+  <ul id="messages"></ul>
+  <form action="">
+    <input id="m" autocomplete="off" /><button>Calculate</button>
+  </form>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+  <script>
+    // Queue class 
+    class Queue {
+      // Array is used to implement a Queue 
+      constructor() {
+        this.items = [];
+      }
+
+      // enqueue function 
+      enqueue(element) {
+        // adding element to the queue 
+        this.items.push(element);
+      }
+
+      // dequeue function 
+      dequeue() {
+        // removing element from the queue 
+        // returns underflow when called  
+        // on empty queue 
+        if (this.isEmpty())
+          return "Underflow";
+        return this.items.shift();
+      }
+
+      // front function 
+      front() {
+        // returns the Front element of  
+        // the queue without removing it. 
+        if (this.isEmpty())
+          return "No elements in Queue";
+        return this.items[0];
+      }
+
+      // isEmpty function 
+      isEmpty() {
+        // return true if the queue is empty. 
+        return this.items.length == 0;
+      }
+
+      // printQueue function 
+      printQueue() {
+        var str = "";
+        for (var i = 0; i < this.items.length; i++)
+          $('#messages').append($('<li>').text(this.items[i]));
+        return str;
+      }
+    }
+  </script>
+  <script>
+    $(function () {
+      var socket = io();
+      $('form').submit(function () {
+        socket.emit('calculation result', $('#m').val());
+        $('#m').val('');
+        return false;
       });
-    </script>
-  </body>
+      var q = new Queue();
+      socket.on('calculation result', function (msg) {
+        q.enqueue(msg);
+        if (q.items.length > 10)
+          q.dequeue();
+        $('#messages').empty();
+        q.printQueue();
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    });
+  </script>
+</body>
+
 </html>
