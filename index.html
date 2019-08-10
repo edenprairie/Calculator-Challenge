@@ -57,80 +57,153 @@
 </head>
 
 <body>
-  <ul id="messages"></ul>
-  <form action="">
-    <input id="m" autocomplete="off" /><button>Calculate</button>
-  </form>
-  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <h1 style="color:blue; text-align:center; font-size:80px">Calculator Code Challenge</h1>
+  <h2 style="text-align:center; font-size:30px">Please use button at the bottom or enter key to submit</h3>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Calculate</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 
-  <script>
-    // Queue class 
-    class Queue {
-      // Array is used to implement a Queue 
-      constructor() {
-        this.items = [];
-      }
+    <script>
+      // Queue class 
+      class Queue {
+        // Array is used to implement a Queue 
+        constructor() {
+          this.items = [];
+        }
 
-      // enqueue function 
-      enqueue(element) {
-        // adding element to the queue 
-        this.items.push(element);
-      }
+        // enqueue function 
+        enqueue(element) {
+          // adding element to the queue 
+          this.items.push(element);
+        }
 
-      // dequeue function 
-      dequeue() {
-        // removing element from the queue 
-        // returns underflow when called  
-        // on empty queue 
-        if (this.isEmpty())
-          return "Underflow";
-        return this.items.shift();
-      }
+        // dequeue function 
+        dequeue() {
+          // removing element from the queue 
+          // returns underflow when called  
+          // on empty queue 
+          if (this.isEmpty())
+            return "Underflow";
+          return this.items.shift();
+        }
 
-      // front function 
-      front() {
-        // returns the Front element of  
-        // the queue without removing it. 
-        if (this.isEmpty())
-          return "No elements in Queue";
-        return this.items[0];
-      }
+        // front function 
+        front() {
+          // returns the Front element of  
+          // the queue without removing it. 
+          if (this.isEmpty())
+            return "No elements in Queue";
+          return this.items[0];
+        }
 
-      // isEmpty function 
-      isEmpty() {
-        // return true if the queue is empty. 
-        return this.items.length == 0;
-      }
+        // isEmpty function 
+        isEmpty() {
+          // return true if the queue is empty. 
+          return this.items.length == 0;
+        }
 
-      // printQueue function 
-      printQueue() {
-        var str = "";
-        for (var i = 0; i < this.items.length; i++)
-          $('#messages').append($('<li>').text(this.items[i]));
-        return str;
+        // printQueue function 
+        printQueue() {
+          var str = "";
+          for (var i = 0; i < this.items.length; i++)
+            //$('#messages').append($('<li>').text(this.items[i]));
+            $('#messages').append($('<li>').text(calculate(this.items[i])));
+          return str;
+        }
       }
-    }
-  </script>
-  <script>
-    $(function () {
-      var socket = io();
-      $('form').submit(function () {
-        socket.emit('calculation result', $('#m').val());
-        $('#m').val('');
-        return false;
+    </script>
+    <script>
+      /** * @param {string} s * @return {number} */
+      var calculate = function (s) {
+        s = s.replace(new RegExp(" ", "g"), "");
+        //debugger;
+        var len = s.length;
+        if (len === 0) {
+          return 0;
+        }
+        var stack = [];
+        var ret = 0;
+        var sign = 1;
+        var isMul = 0;
+        for (var i = 0; i < len; i++) {
+          var n = s.charAt(i);
+          if (!isNaN(parseInt(n))) {
+            var cur = parseInt(n);
+            while (i + 1 < len && (!isNaN(parseInt(s.charAt(i + 1))))) {
+              cur = 10 * cur + parseInt(s.charAt(++i));
+            }
+            if (s.charAt(i + 1) == "+" || s.charAt(i + 1) == "-" || s.charAt(i + 1) === "") {
+              if (stack.length === 0) {
+                ret += sign * cur;
+              } else {
+                if (isMul == 1) {
+                  cur = cur * stack.pop();
+                } else if (isMul == -1) {
+                  cur = Math.floor(stack.pop() / cur);
+                }
+                s_sign = stack.pop();
+                s_ret = stack.pop();
+                ret = s_ret + s_sign * cur;
+                isMul = 0;
+              }
+            } else if (s.charAt(i + 1) == "*" || s.charAt(i + 1) == "/") {
+              if (isMul === 0) {
+                stack.push(ret);
+                stack.push(sign);
+                stack.push(cur);
+                ret = 0;
+                sigh = 1;
+              } else { // 3+8*9/3
+                if (isMul == 1) {
+                  cur = cur * stack.pop();
+                  stack.push(cur);
+                } else if (isMul == -1) {
+                  cur = Math.floor(stack.pop() / cur);
+                  stack.push(cur);
+                }
+              }
+            }
+          } else if (n == "+") {
+            sign = 1;
+            isMul = 0;
+          } else if (n == "-") {
+            sign = -1;
+            isMul = 0;
+          } else if (n == "*") {
+            isMul = 1;
+          } else if (n == "/") {
+            isMul = -1;
+          }
+        }
+        if (ret == 0)
+          return s + " is not a valid expression";
+        else
+          return s + "=" + ret;
+
+      };
+    </script>
+    <script>
+      $(function () {
+        var socket = io();
+        $('form').submit(function () {
+          socket.emit('calculation result', $('#m').val());
+          $('#m').val('');
+          return false;
+        });
+        var q = new Queue();
+        socket.on('calculation result', function (msg) {
+          q.enqueue(msg);
+          if (q.items.length > 10)
+            q.dequeue();
+          $('#messages').empty();
+          q.printQueue();
+          window.scrollTo(0, document.body.scrollHeight);
+        });
       });
-      var q = new Queue();
-      socket.on('calculation result', function (msg) {
-        q.enqueue(msg);
-        if (q.items.length > 10)
-          q.dequeue();
-        $('#messages').empty();
-        q.printQueue();
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-    });
-  </script>
+    </script>
 </body>
 
 </html>
