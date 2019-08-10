@@ -13,3 +13,7 @@ Besides, the application is deployed on [Now](https://zeit.co/now): https://calc
 ## http://calculator-codechallenge.herokuapp.com
 
 ## Code merged to master branch will be automatically deploy into Heroku
+
+## Design consideration
+
+Use stack to implement calculator, and use queue with size of 10 to restrict records of display. 
