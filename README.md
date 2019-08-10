@@ -8,3 +8,8 @@ A calculator website which logs calculations as they happen and shares those cal
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/edenprairie/Calculator-Challenge)
 
 Besides, the application is deployed on [Now](https://zeit.co/now): https://calculator-challenge.now.sh/
+
+
+## http://calculator-codechallenge.herokuapp.com
+
+## Code merged to master branch will be automatically deploy into Heroku
