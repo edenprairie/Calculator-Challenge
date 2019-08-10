@@ -196,7 +196,7 @@
         var q = new Queue();
         socket.on('calculation result', function (msg) {
           q.enqueue(msg);
-          if (q.items.length > 10)
+          if (q.items.length > 12)
             q.dequeue();
           $('#messages').empty();
           q.printQueue();
